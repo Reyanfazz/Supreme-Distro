@@ -6,8 +6,17 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
 
-// ✅ Renamed product array to avoid conflict with state
-const productList = [
+interface Product {
+  id: string;
+  name: string;
+  image: string;
+  category: string;
+  rating: number;
+  originalPrice?: number;
+  salePrice?: number;
+}
+
+const productList: Product[] = [
   {
     id: 'elf-bar-600-blue-razz',
     name: 'Elf Bar 600 Blue Razz',
@@ -37,10 +46,10 @@ const productList = [
 
 export default function ProductDetailPage() {
   const { id } = useParams();
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    const found = productList.find((p) => p.id === id);
+    const found = productList.find((p) => p.id === id) || null;
     setProduct(found);
   }, [id]);
 
@@ -77,7 +86,7 @@ export default function ProductDetailPage() {
               <div className="text-2xl font-bold text-red-600 mb-2">
                 £{product.salePrice.toFixed(2)}{' '}
                 <span className="text-gray-400 line-through text-lg ml-2">
-                  £{product.originalPrice.toFixed(2)}
+                  £{product.originalPrice?.toFixed(2)}
                 </span>
               </div>
             ) : (
@@ -132,7 +141,7 @@ export default function ProductDetailPage() {
                 />
                 <h3 className="text-lg font-semibold text-center">{p.name}</h3>
                 <p className="text-center text-gray-500 text-sm mt-1">
-                  £{(p.salePrice || p.originalPrice).toFixed(2)}
+                  £{(p.salePrice || p.originalPrice)?.toFixed(2)}
                 </p>
               </Link>
             ))}
