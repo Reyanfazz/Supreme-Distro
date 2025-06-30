@@ -85,29 +85,7 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Age Verification */}
-      {showWarning && (
-        <div className="fixed inset-0 z-[9999] bg-black bg-opacity-80 flex items-center justify-center px-4">
-          <div
-            className={`bg-white dark:bg-gray-900 rounded-2xl max-w-md w-full text-center p-8 shadow-2xl transform transition-all duration-300 ${
-              animateWarning ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
-            }`}
-          >
-            <h2 className="text-2xl font-extrabold mb-4 text-gray-900 dark:text-white tracking-wide">
-              Age Verification
-            </h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-8 leading-relaxed font-medium">
-              This site contains vape products. You must be <span className="font-bold">18+</span> to enter.
-            </p>
-            <button
-              onClick={handleAccept}
-              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-400 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:scale-105"
-            >
-              I am 18 or older
-            </button>
-          </div>
-        </div>
-      )}
+      
 
       {/* Main Content */}
       <main
