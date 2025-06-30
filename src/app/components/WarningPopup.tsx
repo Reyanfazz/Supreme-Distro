@@ -16,10 +16,8 @@ export default function WarningPopup() {
 
   useEffect(() => {
     if (visible) {
-      // Focus the accept button when popup appears
       acceptBtnRef.current?.focus();
 
-      // Trap focus inside the popup
       const handleTab = (e: KeyboardEvent) => {
         if (e.key !== 'Tab') return;
 
@@ -52,8 +50,6 @@ export default function WarningPopup() {
   };
 
   const handleDecline = () => {
-    // You can customize this: redirect user or close tab
-    // For now, redirect to google
     window.location.href = 'https://www.google.com';
   };
 
@@ -64,28 +60,30 @@ export default function WarningPopup() {
       role="dialog"
       aria-modal="true"
       aria-labelledby="age-popup-title"
-      className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center animate-fadeIn"
+      className="fixed inset-0 z-50 bg-[#0f172a]/90 flex items-center justify-center animate-fadeIn"
     >
       <div
-        className="bg-white p-6 rounded-xl max-w-md text-center space-y-6 shadow-lg"
+        className="bg-[#1e293b] p-6 rounded-xl max-w-md text-center space-y-6 shadow-lg"
         tabIndex={-1}
       >
-        <h2 id="age-popup-title" className="text-xl font-bold">
+        <h2 id="age-popup-title" className="text-2xl font-bold text-white">
           Age Restriction
         </h2>
-        <p>You must be 18+ to enter this site. Please confirm your age.</p>
+        <p className="text-gray-300">
+          You must be 18+ to enter this site. Please confirm your age.
+        </p>
         <div className="flex justify-center gap-4">
           <button
             ref={acceptBtnRef}
             onClick={handleAccept}
-            className="bg-black text-white px-6 py-2 rounded-xl hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition"
           >
             I am 18 or older
           </button>
           <button
             ref={declineBtnRef}
             onClick={handleDecline}
-            className="bg-gray-300 text-gray-700 px-6 py-2 rounded-xl hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400 transition"
           >
             I am under 18
           </button>
