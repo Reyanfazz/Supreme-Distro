@@ -34,7 +34,6 @@ export default function Navbar() {
             <NavLink href="/" label="Home" />
             <NavLink href="/shop" label="Shop" />
             <NavLink href="/faq" label="FAQs" />
-            <NavLink href="/contact" label="Contact" />
             <NavLink href="/login" label="Login" />
             <NavLink href="/admin" label="Admin" className="text-red-600 font-semibold" />
           </div>
@@ -65,7 +64,6 @@ export default function Navbar() {
             <MobileNavLink href="/" label="Home" onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink href="/shop" label="Shop" onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink href="/faq" label="FAQs" onClick={() => setMobileMenuOpen(false)} />
-            <MobileNavLink href="/contact" label="Contact" onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink href="/login" label="Login" onClick={() => setMobileMenuOpen(false)} />
             <MobileNavLink href="/admin" label="Admin" onClick={() => setMobileMenuOpen(false)} className="text-red-600 font-semibold" />
           </div>
