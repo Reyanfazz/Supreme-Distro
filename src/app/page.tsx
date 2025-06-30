@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
@@ -59,18 +59,11 @@ export default function HomePage() {
   const [category, setCategory] = useState('All');
   const [visibleCount] = useState(4);
 
-  const [showWarning, setShowWarning] = useState(false);
-  const [animateWarning, setAnimateWarning] = useState(false);
 
-  useEffect(() => {
-    setShowWarning(true);
-    setTimeout(() => setAnimateWarning(true), 100);
-  }, []);
 
-  const handleAccept = () => {
-    setAnimateWarning(false);
-    setTimeout(() => setShowWarning(false), 300);
-  };
+  
+
+
 
   const filteredByCategory =
     category === 'All'
@@ -88,11 +81,7 @@ export default function HomePage() {
       
 
       {/* Main Content */}
-      <main
-        className={`transition-all duration-300 ${
-          showWarning ? 'blur-sm pointer-events-none select-none' : ''
-        }`}
-      >
+     
         {/* Delivery Banner */}
         <section className="py-3 px-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white text-center shadow-lg">
           <h2 className="text-xl md:text-2xl font-semibold tracking-wide">
@@ -339,7 +328,7 @@ export default function HomePage() {
   <div className="text-center text-xs text-gray-500 mt-6">© {new Date().getFullYear()} Supreme Distro. All rights reserved.</div>
 </footer>
 
-      </main>
+   
     </>
   );
 }
