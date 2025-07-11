@@ -14,7 +14,7 @@ export default function Login() {
   // Redirect if already logged in
   useEffect(() => {
     if (status === 'authenticated') {
-      if ((session?.user as any)?.isAdmin) {
+      if (session?.user?.isAdmin) {
         router.push('/admin');
       } else {
         router.push('/');
