@@ -4,9 +4,9 @@ import type { Metadata } from 'next';
 import Navbar from './components/Navbar';
 import WarningPopup from './components/WarningPopup';
 import { Poppins } from 'next/font/google';
+import Providers from './providers';
 
 const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600', '700'] });
-
 
 export const metadata: Metadata = {
   title: 'Supreme Distro',
@@ -21,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <WarningPopup />
-        <Navbar />
-        {children}
+        <Providers>
+          <WarningPopup />
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );

@@ -15,13 +15,46 @@ export default function SignupPage() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    console.log('Signup Data:', formData);
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Signup failed');
+        return;
+      }
+
+      alert('Signup successful!');
+
+      // Redirect based on role
+      if (data.user.isAdmin) {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/';
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert('Something went wrong.');
+    }
   };
 
   const handleGoogleSignup = () => {

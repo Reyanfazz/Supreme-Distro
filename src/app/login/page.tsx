@@ -1,73 +1,116 @@
 'use client';
 
-import { useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FcGoogle } from 'react-icons/fc';
+import Link from 'next/link';
 
-export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+export default function Login() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [formData, setFormData] = useState({ email: '', password: '' });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  // Redirect if already logged in
+  useEffect(() => {
+    if (status === 'authenticated') {
+      if ((session?.user as any)?.isAdmin) {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [status, session, router]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login Data:', formData);
+    const res = await signIn('credentials', {
+      redirect: false,
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (res?.ok) {
+      // Login successful - redirect handled by useEffect
+    } else {
+      alert('Invalid credentials');
+    }
   };
 
   const handleGoogleLogin = () => {
-    console.log('Google Login Clicked');
+    signIn('google', { callbackUrl: '/' });
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold text-white mb-6">Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-8 space-y-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800">Login to SupremeDistro</h2>
+
         <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
-            required
-          />
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              Email address
+            </label>
+            <input
+              type="email"
+              id="email"
+              className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:outline-none"
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={e => setFormData({ ...formData, email: e.target.value })}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:outline-none"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={e => setFormData({ ...formData, password: e.target.value })}
+              required
+            />
+            <div className="text-right mt-1">
+              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded"
+            className="w-full bg-black text-white py-2 rounded-md font-medium hover:bg-gray-800 transition"
           >
             Login
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full bg-white text-gray-900 py-2 rounded font-medium hover:bg-gray-100 transition"
-          >
-            Sign in with Google
-          </button>
+        <div className="flex items-center justify-center space-x-2 text-gray-400">
+          <hr className="w-1/3 border-gray-300" />
+          <span className="text-sm">OR</span>
+          <hr className="w-1/3 border-gray-300" />
         </div>
 
-        <p className="text-gray-400 text-sm mt-4 text-center">
-          Dont have an account?{' '}
-          <a href="/signup" className="text-blue-400 hover:underline">
-            Sign up
-          </a>
-        </p>
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+        >
+          <FcGoogle size={20} />
+          <span className="font-medium">Sign in with Google</span>
+        </button>
+
+        <div className="text-center text-sm text-gray-600">
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="text-blue-600 hover:underline font-medium">
+            Create Account
+          </Link>
+        </div>
       </div>
     </div>
   );
