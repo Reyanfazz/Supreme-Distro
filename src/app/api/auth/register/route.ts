@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
-import User from '@/models/User';
 import bcrypt from 'bcryptjs';
+import User from '@/models/User';
+import { connectDB } from '@/lib/db';
 
 export async function POST(req: Request) {
   try {
-    const { fullName, email, password, phone } = await req.json();
+    const { name, email, password } = await req.json();
+
+    if (!name || !email || !password) {
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    }
 
     await connectDB();
 
@@ -16,29 +20,12 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
-      name: fullName,
-      email,
-      password: hashedPassword,
-      phone,
-      // isAdmin defaults to false
-    });
-
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
-    return NextResponse.json(
-      {
-        message: 'User registered successfully',
-        user: {
-          name: newUser.name,
-          email: newUser.email,
-          isAdmin: newUser.isAdmin,
-        },
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
   } catch (error) {
-    console.error('Registration error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('Register error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

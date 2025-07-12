@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
+export const connectDB = async () => {
+  if (mongoose.connections[0].readyState) return;
 
-export async function connectDB() {
-  if (mongoose.connection.readyState >= 1) return;
-
-  return mongoose.connect(MONGODB_URI, {
-    dbName: 'supremedistr',
-  });
-}
+  try {
+    await mongoose.connect(process.env.MONGODB_URI!, {
+      dbName: 'SUPREME', // optional, use your DB name
+    });
+    console.log('MongoDB connected');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+};
