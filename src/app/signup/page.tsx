@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
+import { signIn } from 'next-auth/react';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -43,7 +44,7 @@ export default function SignupPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          fullName: formData.fullName,
+          name: formData.fullName,
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
@@ -73,7 +74,7 @@ export default function SignupPage() {
   };
 
   const handleGoogleSignup = () => {
-    window.location.href = '/api/auth/google';
+    signIn('google'); // Uses next-auth
   };
 
   return (
@@ -99,8 +100,8 @@ export default function SignupPage() {
             placeholder="Full Name"
             value={formData.fullName}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="email"
@@ -108,8 +109,8 @@ export default function SignupPage() {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="tel"
@@ -125,8 +126,8 @@ export default function SignupPage() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="password"
@@ -134,8 +135,8 @@ export default function SignupPage() {
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <button
@@ -149,13 +150,13 @@ export default function SignupPage() {
 
         <div className="mt-6 text-center">
           <button
-                    type="button"
-                     onClick={handleGoogleSignup}
-                    className="w-full border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
-                  >
-                    <FcGoogle size={20} />
-                    <span className="font-medium">Sign in with Google</span>
-                  </button>
+            type="button"
+            onClick={handleGoogleSignup}
+            className="w-full border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+          >
+            <FcGoogle size={20} />
+            <span className="font-medium">Sign in with Google</span>
+          </button>
         </div>
 
         <p className="text-gray-400 text-sm mt-4 text-center">
