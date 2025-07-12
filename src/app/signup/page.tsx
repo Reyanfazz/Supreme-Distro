@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { FcGoogle } from 'react-icons/fc';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function SignupPage() {
     }
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,11 +149,13 @@ export default function SignupPage() {
 
         <div className="mt-6 text-center">
           <button
-            onClick={handleGoogleSignup}
-            className="w-full bg-white text-gray-900 py-2 rounded font-medium hover:bg-gray-100 transition"
-          >
-            Sign up with Google
-          </button>
+                    type="button"
+                     onClick={handleGoogleSignup}
+                    className="w-full border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+                  >
+                    <FcGoogle size={20} />
+                    <span className="font-medium">Sign in with Google</span>
+                  </button>
         </div>
 
         <p className="text-gray-400 text-sm mt-4 text-center">
