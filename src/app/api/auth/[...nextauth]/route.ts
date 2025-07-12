@@ -1,76 +1,68 @@
-import NextAuth from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import bcrypt from 'bcryptjs';
-import User from '@/models/User';
-import { connectDB } from '@/lib/db';
-import type { NextAuthOptions } from 'next-auth';
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
 
-// ✅ Custom user type to avoid using `any`
-type CustomUser = {
+interface MyUser {
   id: string;
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   isAdmin: boolean;
-};
+}
 
-const authOptions: NextAuthOptions = {
+const handler = NextAuth({
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required');
+          throw new Error("Missing email or password");
         }
 
         await connectDB();
 
         const user = await User.findOne({ email: credentials.email });
-        if (!user) throw new Error('No user found');
-
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-        if (!isPasswordCorrect) throw new Error('Invalid password');
+        if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
+          throw new Error("Invalid email or password");
+        }
 
         return {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
-          isAdmin: user.isAdmin,
-        } as CustomUser;
+          isAdmin: user.isAdmin || false,
+        } as MyUser;
       },
-    }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.isAdmin = (user as CustomUser).isAdmin ?? false;
-      }
-      return token;
-    },
     async session({ session, token }) {
       if (session.user) {
+        session.user.id = token.id as string;
         session.user.isAdmin = token.isAdmin as boolean;
       }
       return session;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        const typedUser = user as MyUser;
+        token.id = typedUser.id;
+        token.isAdmin = typedUser.isAdmin;
+      }
+      return token;
+    },
+  },
+  session: {
+    strategy: "jwt",
   },
   pages: {
-    signIn: '/login',
+    signIn: "/login",
   },
-  secret: process.env.NEXTAUTH_SECRET,
-};
-
-const handler = NextAuth(authOptions);
+});
 
 export { handler as GET, handler as POST };
