@@ -5,7 +5,7 @@ export const connectDB = async () => {
 
   try {
     await mongoose.connect(process.env.MONGODB_URI!, {
-      dbName: 'SUPREME', // optional, use your DB name
+      dbName: 'supremedistr', // optional, use your DB name
     });
     console.log('MongoDB connected');
   } catch (error) {
