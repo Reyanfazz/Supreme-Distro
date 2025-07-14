@@ -1,43 +1,40 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { connectDB } from "@/lib/db";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import clientPromise from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
-interface MyUser {
-  id: string;
-  name?: string;
-  email?: string;
-  isAdmin: boolean;
-}
-
 const handler = NextAuth({
+  adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Missing email or password");
-        }
-
-        await connectDB();
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await User.findOne({ email: credentials.email });
-        if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
-          throw new Error("Invalid email or password");
-        }
+
+        if (!user || !user.hashedPassword) return null;
+
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword
+        );
+
+        if (!isValid) return null;
 
         return {
-          id: user._id.toString(),
+          id: user._id,
           name: user.name,
           email: user.email,
-          isAdmin: user.isAdmin || false,
-        } as MyUser;
+          role: user.role,
+        };
       },
     }),
     GoogleProvider({
@@ -45,26 +42,24 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  callbacks: {
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.isAdmin = token.isAdmin as boolean;
-      }
-      return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        const typedUser = user as MyUser;
-        token.id = typedUser.id;
-        token.isAdmin = typedUser.isAdmin ?? false;
-      }
-      return token;
-    },
-  },
   session: {
     strategy: "jwt",
   },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
   },

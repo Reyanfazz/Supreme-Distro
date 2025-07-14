@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+import { connectDB } from '@/lib/mongoose';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     const newUser = new User({
       name: fullName,
       email,
-      password: hashedPassword,
+      hashedPassword,
       phone,
       isAdmin: false,
     });

@@ -1,15 +1,28 @@
-import mongoose from 'mongoose';
+import { MongoClient } from "mongodb";
 
-export const connectDB = async () => {
-  if (mongoose.connections[0].readyState) return;
+const uri = process.env.MONGODB_URI!;
+const options = {};
 
-  try {
-    await mongoose.connect(process.env.MONGODB_URI!, {
-      dbName: 'supremedistr', // optional, use your DB name
-    });
-    console.log('MongoDB connected');
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    throw error;
+let client;
+let clientPromise: Promise<MongoClient>;
+
+declare global {
+  var _mongoClientPromise: Promise<MongoClient>;
+}
+
+if (!process.env.MONGODB_URI) {
+  throw new Error("Please add your Mongo URI to .env");
+}
+
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    global._mongoClientPromise = client.connect();
   }
-};
+  clientPromise = global._mongoClientPromise;
+} else {
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
+}
+
+export default clientPromise;
