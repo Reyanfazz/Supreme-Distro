@@ -2,49 +2,36 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { FcGoogle } from 'react-icons/fc';
 import { signIn } from 'next-auth/react';
 
 export default function SignupPage() {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
+    phone: '',
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      setLoading(false);
+      alert('Passwords do not match');
       return;
     }
 
     try {
       const res = await fetch('/api/users/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.fullName,
+          fullName: formData.fullName,
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
@@ -54,45 +41,39 @@ export default function SignupPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Registration failed');
-        setLoading(false);
+        alert(data.error || 'Signup failed');
         return;
       }
 
-      // Redirect after successful signup
-      if (data.user?.isAdmin) {
+      alert('Signup successful!');
+
+      // Optionally log them in
+      await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
+
+      // Redirect based on role
+      if (data.user.isAdmin) {
         router.push('/admin');
       } else {
         router.push('/');
       }
     } catch (err) {
       console.error(err);
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
+      alert('Something went wrong.');
     }
   };
 
   const handleGoogleSignup = () => {
-    signIn('google'); // Uses next-auth
+    signIn('google', { callbackUrl: '/' });
   };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
       <div className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-3xl font-bold text-white mb-2 text-center">
-          Sign Up
-        </h1>
-        <p className="text-gray-400 text-sm text-center mb-6">
-          Create your account to start using SupremeDistro
-        </p>
-
-        {error && (
-          <div className="bg-red-500 text-white px-4 py-2 rounded mb-4 text-sm text-center">
-            {error}
-          </div>
-        )}
-
+        <h1 className="text-2xl font-bold text-white mb-6">Create Account</h1>
         <form onSubmit={handleSignup} className="space-y-4">
           <input
             type="text"
@@ -100,8 +81,8 @@ export default function SignupPage() {
             placeholder="Full Name"
             value={formData.fullName}
             onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
             required
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="email"
@@ -109,8 +90,8 @@ export default function SignupPage() {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
             required
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="tel"
@@ -118,7 +99,7 @@ export default function SignupPage() {
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
           />
           <input
             type="password"
@@ -126,8 +107,8 @@ export default function SignupPage() {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
             required
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="password"
@@ -135,27 +116,24 @@ export default function SignupPage() {
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700"
             required
-            className="w-full px-4 py-2 rounded bg-gray-900 text-white border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded"
           >
-            {loading ? 'Signing up...' : 'Sign Up'}
+            Sign Up
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <button
-            type="button"
             onClick={handleGoogleSignup}
-            className="w-full border border-gray-300 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+            className="w-full bg-white text-gray-900 py-2 rounded font-medium hover:bg-gray-100 transition"
           >
-            <FcGoogle size={20} />
-            <span className="font-medium">Sign in with Google</span>
+            Sign up with Google
           </button>
         </div>
 

@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
@@ -39,6 +40,10 @@ const handler = NextAuth({
         } as MyUser;
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
     async session({ session, token }) {
@@ -52,7 +57,7 @@ const handler = NextAuth({
       if (user) {
         const typedUser = user as MyUser;
         token.id = typedUser.id;
-        token.isAdmin = typedUser.isAdmin;
+        token.isAdmin = typedUser.isAdmin ?? false;
       }
       return token;
     },

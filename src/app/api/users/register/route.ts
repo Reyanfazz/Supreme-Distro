@@ -1,48 +1,47 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import User from '@/models/User';
 import { connectDB } from '@/lib/db';
+import User from '@/models/User';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, phone } = await req.json();
+    const { fullName, email, password, phone } = await req.json();
 
-    if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    if (!fullName || !email || !password) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     await connectDB();
 
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+      return NextResponse.json({ error: 'Email already registered' }, { status: 409 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      name,
+      name: fullName,
       email,
       password: hashedPassword,
       phone,
-      isAdmin: false, // add field if needed
+      isAdmin: false,
     });
 
     await newUser.save();
 
-    return NextResponse.json(
-      {
-        message: 'User registered successfully',
-        user: {
-          id: newUser._id,
-          email: newUser.email,
-          isAdmin: newUser.isAdmin,
-        },
+    return NextResponse.json({
+      message: 'User registered successfully',
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        isAdmin: newUser.isAdmin,
       },
-      { status: 201 }
-    );
+    });
   } catch (error) {
-    console.error('Register error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
